@@ -1,0 +1,24 @@
+{
+  "name": "@beui-ai-studio/ai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "4.0.56",
+    "@ai-sdk/google": "4.0.74",
+    "@ai-sdk/openai": "4.0.69",
+    "ai": "7.0.105",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.9.0"
+  }
+}
+

@@ -1,0 +1,200 @@
+openapi: 3.1.0
+info:
+  title: beUI AI Studio API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/auth/{path}:
+    parameters:
+      - in: path
+        name: path
+        required: true
+        schema: { type: string }
+    get:
+      summary: Better Auth handler
+      responses:
+        '200': { description: Better Auth response }
+    post:
+      summary: Better Auth handler
+      responses:
+        '200': { description: Better Auth response }
+  /api/models:
+    get:
+      summary: List concrete models backed by the authenticated user's connected providers
+      responses:
+        '200':
+          description: Multiple concrete model entries per connected provider and exactly one default
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [models]
+                properties:
+                  models:
+                    type: array
+                    items: { $ref: '#/components/schemas/Model' }
+  /api/providers:
+    get:
+      summary: List the authenticated user's provider configuration status
+      responses:
+        '200':
+          description: Provider status without credential values
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [providers]
+                properties:
+                  providers:
+                    type: array
+                    items: { $ref: '#/components/schemas/ProviderStatus' }
+        '401': { description: Authentication required }
+  /api/providers/{providerId}:
+    parameters:
+      - in: path
+        name: providerId
+        required: true
+        schema: { type: string, enum: [openai, anthropic, google] }
+    put:
+      summary: Add or replace the authenticated user's provider credential
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [apiKey]
+              properties:
+                apiKey: { type: string, minLength: 12, maxLength: 4096 }
+      responses:
+        '200': { description: Credential stored; response contains masked status only }
+        '401': { description: Authentication required }
+        '422': { description: Invalid provider or credential shape }
+    delete:
+      summary: Remove the authenticated user's provider credential
+      responses:
+        '204': { description: Credential removed or already absent }
+        '401': { description: Authentication required }
+        '422': { description: Unsupported provider }
+  /api/projects:
+    post:
+      summary: Create an owner-scoped project and initial chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, minLength: 1, maxLength: 120 }
+      responses:
+        '201': { description: Project created }
+        '401': { description: Authentication required }
+        '422': { description: Invalid input }
+  /api/projects/{projectId}:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+    patch:
+      summary: Rename or update an owned project
+      responses:
+        '200': { description: Project updated }
+        '404': { description: Project not found for owner }
+    delete:
+      summary: Delete an owned project and its descendants
+      responses:
+        '204': { description: Project deleted }
+        '404': { description: Project not found for owner }
+  /api/projects/{projectId}/chats:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+    post:
+      summary: Create a chat inside an owned project
+      responses:
+        '201': { description: Chat created }
+        '404': { description: Project not found for owner }
+  /api/chats/{chatId}:
+    parameters:
+      - $ref: '#/components/parameters/ChatId'
+    patch:
+      summary: Rename a chat or change its default model
+      responses:
+        '200': { description: Chat updated }
+        '404': { description: Chat not found for owner }
+    delete:
+      summary: Delete an owned chat and its messages
+      responses:
+        '204': { description: Chat deleted }
+        '404': { description: Chat not found for owner }
+  /api/chat:
+    post:
+      summary: Persist a prompt and stream an assistant response
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [chatId, model, messages]
+              properties:
+                chatId: { type: string, format: uuid }
+                model: { type: string }
+                messages:
+                  type: array
+                  minItems: 1
+                  items: { $ref: '#/components/schemas/UIMessage' }
+      responses:
+        '200':
+          description: AI SDK UI message stream
+          content:
+            text/event-stream: {}
+        '401': { description: Authentication required }
+        '404': { description: Chat not found for owner }
+        '422': { description: Invalid message or model }
+components:
+  parameters:
+    ProjectId:
+      in: path
+      name: projectId
+      required: true
+      schema: { type: string, format: uuid }
+    ChatId:
+      in: path
+      name: chatId
+      required: true
+      schema: { type: string, format: uuid }
+  schemas:
+    Model:
+      type: object
+      required: [id, providerId, modelId, label, description, isAvailable, isDefault]
+      properties:
+        id: { type: string }
+        providerId: { type: string }
+        modelId: { type: string }
+        label: { type: string }
+        description: { type: string }
+        isAvailable: { type: boolean, enum: [true] }
+        isDefault: { type: boolean }
+    ProviderStatus:
+      type: object
+      required: [providerId, label, isConfigured]
+      properties:
+        providerId: { type: string, enum: [openai, anthropic, google] }
+        label: { type: string }
+        isConfigured: { type: boolean }
+        credentialHint:
+          type: [string, 'null']
+          description: Last four credential characters only
+        updatedAt: { type: [string, 'null'], format: date-time }
+    UIMessage:
+      type: object
+      required: [id, role, parts]
+      properties:
+        id: { type: string }
+        role: { type: string, enum: [user, assistant, system] }
+        parts:
+          type: array
+          items:
+            type: object
+            additionalProperties: true

@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: beui_ai_studio
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "54329:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d beui_ai_studio"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    volumes:
+      # PostgreSQL 18 stores data in a major-version subdirectory. Mount the
+      # parent so future pg_upgrade runs can cross the version boundary.
+      - beui_ai_studio_postgres:/var/lib/postgresql
+
+volumes:
+  beui_ai_studio_postgres:

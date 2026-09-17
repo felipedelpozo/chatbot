@@ -1,0 +1,33 @@
+{
+  "name": "beui-ai-studio",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "bun@1.3.14",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun --env-file=.env.local run --filter @beui-ai-studio/web dev",
+    "dev:e2e": "BETTER_AUTH_URL=http://localhost:3100 bun --env-file=.env.local run --filter @beui-ai-studio/web dev -- --port 3100",
+    "build": "bun --env-file=.env.local run --filter @beui-ai-studio/web build",
+    "start": "bun --env-file=.env.local run --filter @beui-ai-studio/web start",
+    "typecheck": "bun run --filter '*' typecheck",
+    "lint": "bun run --filter @beui-ai-studio/web lint",
+    "test": "bun --env-file=.env.local test packages apps/web/tests",
+    "test:e2e": "bunx playwright test",
+    "infra:up": "docker compose up -d --wait postgres",
+    "infra:down": "docker compose down",
+    "infra:reset": "docker compose down -v",
+    "db:generate": "bun --env-file=.env.local run --filter @beui-ai-studio/db db:generate",
+    "db:migrate": "bun --env-file=.env.local run --filter @beui-ai-studio/db db:migrate",
+    "db:check": "bun --env-file=.env.local run --filter @beui-ai-studio/db db:check",
+    "db:seed": "bun --env-file=.env.local run --filter @beui-ai-studio/db db:seed"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "latest",
+    "@playwright/test": "latest",
+    "@types/bun": "latest",
+    "typescript": "^5.9.0"
+  }
+}
