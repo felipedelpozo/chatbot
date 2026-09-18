@@ -60,9 +60,38 @@ test("shows only connected provider models and protects the workspace", async ({
   await expect(
     page.getByRole("button", { name: "Configure a provider account" }),
   ).toBeVisible();
+  await page.evaluate(() => localStorage.setItem("theme", "light"));
+  await page.reload();
+  const themeToggle = page.getByRole("button", {
+    name: "Switch to dark mode",
+  });
+  await expect(themeToggle).toBeVisible();
+  await themeToggle.click();
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  await expect(
+    page.getByRole("button", { name: "Switch to light mode" }),
+  ).toBeVisible();
+  await page.reload();
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  await page.getByRole("button", { name: "Switch to light mode" }).click();
+  await expect(page.locator("html")).not.toHaveClass(/dark/);
   await expect(
     page.getByRole("button", { name: "Connect a provider" }),
   ).toBeDisabled();
+  const promptBeam = page.locator("[data-beam]").filter({
+    has: page.getByRole("textbox", { name: "Prompt" }),
+  });
+  await expect(promptBeam).toBeVisible();
+  await expect(promptBeam).toHaveAttribute("data-active", "");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect
+    .poll(() =>
+      promptBeam.evaluate(
+        (element) => getComputedStyle(element, "::after").animationName,
+      ),
+    )
+    .toBe("none");
+  await page.emulateMedia({ reducedMotion: "no-preference" });
   await expect(page.getByText("Demo · Balanced", { exact: true })).toHaveCount(0);
 
   if (process.env.CAPTURE_DESIGN_QA === "1") {

@@ -2,6 +2,7 @@
 
 **Feature**: `001-agent-chat-workspace`
 **Date**: 2026-09-17
+**Last validated**: 2026-09-18
 **Outcome**: CONVERGED
 
 ## Scope verified
@@ -19,6 +20,10 @@
 - Conversation header aligned to the official beUI composition, with owner-scoped external-provider
   readiness replacing the misleading unconditional connected state and a direct settings CTA when
   no personal provider is configured.
+- The primary prompt composer uses the `border-beam` medium colorful treatment at 70% strength,
+  while a reduced-motion media query disables every Beam animation and glow layer.
+- The conversation and empty-workspace headers use the official beUI animated theme toggle with
+  class-based light, dark, and system resolution, persisted preference, and a circle reveal.
 - Unknown and unavailable model rejection before user-message persistence or provider invocation.
 - PostgreSQL 18 Docker startup, clean migration, Drizzle schema consistency, tests, production build, and browser execution.
 
@@ -38,6 +43,8 @@
 | Responsive UI | PASS | The workspace was inspected at 1280×720 and 390×844; the sidebar becomes an accessible off-canvas dialog, the account submenu remains anchored to its footer trigger, and provider settings remain within the mobile viewport. |
 | Header design QA | PASS | `design-qa.md` compares the supplied 1187×84 beUI source with the browser-rendered 1187×56 app header; typography, spacing, tokens, icons, copy, and the unconfigured state passed with no remaining P0/P1/P2 findings. |
 | Model selector design QA | PASS | `design-qa/concrete-model-selector-comparison.png` compares the reported generic OpenAI row with the corrected three-model OpenAI group; the result retains the existing beUI component language with no remaining P0/P1/P2 findings. |
+| Prompt Beam visual QA | PASS | Browser inspection at 1280×720 and 390×844 confirmed the Beam and form share identical bounds, remain within the viewport without horizontal overflow, and preserve the 18px composer radius. Reduced-motion emulation reported no wrapper or stroke animation, zero stroke opacity, and no bloom layer. |
+| Theme toggle visual QA | PASS | Live browser inspection confirmed the official beUI control in both desktop and 390×844 mobile headers, correct sun/moon states and accessible labels, circle-reveal switching, persistence after reload, and Beam colors following the resolved theme. The React 19.2/Next 16 development remount warning from `next-themes` 0.4.6 was contained in the root provider, and the Beam theme is deferred until mount to keep hydration clean. |
 | Secret scan | PASS | No API tokens or private keys were found outside ignored local environment files. `.env.example` contains placeholders only. |
 
 ## Provider status
@@ -77,6 +84,13 @@ catalog states without issuing a paid provider request.
 The concrete multi-model amendment added `T060`–`T064`; it replaced generic provider-family aliases
 with curated concrete model IDs, preserved connected-provider filtering, made overrides additive and
 deduplicated, and verified the corrected selector in automated and live local browser sessions.
+The animated prompt-border amendment added `T065`–`T067`; it installed `border-beam` without runtime
+dependencies, applied the requested medium colorful effect to the primary composer, and verified
+desktop, mobile, accessibility, reduced-motion, build, and browser regression gates.
+The animated theme-toggle amendment added `T068`–`T070`; it installed the official beUI source,
+configured persistent system-aware themes, placed the control in both workspace headers, and passed
+desktop/mobile visual inspection, hydration checks, Playwright persistence coverage, and all
+repository gates.
 
 ## Boundaries and residual risk
 

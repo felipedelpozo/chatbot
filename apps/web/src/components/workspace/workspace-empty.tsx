@@ -7,6 +7,7 @@ import {
   AnimatedSidebarInset,
   AnimatedSidebarTrigger,
 } from "@/components/motion/animated-sidebar";
+import { ThemeToggle } from "@/components/motion/theme-toggle";
 import { ProjectSidebar } from "./project-sidebar";
 import { ProviderSettingsDialog } from "./provider-settings-dialog";
 import type { WorkspaceProjectSummary, WorkspaceUser } from "./types";
@@ -28,10 +29,16 @@ export function WorkspaceEmpty({
         onOpenSettings={() => setIsProviderSettingsOpen(true)}
       />
       <AnimatedSidebarInset className="min-h-0">
-        <header className="flex h-14 shrink-0 items-center border-b border-border/70 px-3 sm:px-4">
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/70 px-3 sm:px-4">
           <AnimatedSidebarTrigger className="size-8 hover:bg-muted">
             <Menu className="size-4" />
           </AnimatedSidebarTrigger>
+          <ThemeToggle
+            variant="circle"
+            start="top-right"
+            className="size-8 shrink-0 rounded-full text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+            iconClassName="size-4"
+          />
         </header>
         <div className="grid min-h-0 flex-1 place-items-center px-6 text-center">
           <div className="max-w-sm">

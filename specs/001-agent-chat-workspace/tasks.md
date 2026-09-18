@@ -194,3 +194,22 @@ T044-T046. Synthetic credentials prove custody and availability only; no externa
 - [x] T063 Update browser assertions and capture the connected OpenAI selector with multiple models
 - [x] T064 Run repository gates, visual design QA, secret scan, and append convergence evidence for
   the concrete multi-model catalog
+
+## Phase 16: Animated Prompt Border
+
+- [x] T065 Add the zero-runtime-dependency `border-beam` package to the web workspace and apply its
+  medium colorful beam to the primary prompt composer in
+  `apps/web/src/components/agents/prompt-input.tsx`
+- [x] T066 Respect the system reduced-motion preference across every Beam animation layer and add
+  browser coverage for the rendered effect and paused animation in `tests/e2e/workspace.spec.ts`
+- [x] T067 Run typecheck, lint, tests, production build, browser validation, visual inspection, and
+  append convergence evidence for the animated prompt border
+
+## Phase 17: Animated Theme Toggle
+
+- [x] T068 Add the official beUI `ThemeToggle` component and configure `next-themes` at the root
+  layout with class-based light, dark, and system theme resolution
+- [x] T069 Place the accessible circle-reveal toggle in conversation and empty-workspace headers,
+  adapt the prompt Beam to the resolved theme, and cover theme switching and persistence in Playwright
+- [x] T070 Run typecheck, lint, tests, production build, browser validation, visual inspection, and
+  append convergence evidence for the animated theme toggle

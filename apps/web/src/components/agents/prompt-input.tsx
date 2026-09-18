@@ -2,7 +2,9 @@
 // beui.dev/components/agents/chat-app
 
 import { ArrowUp, Plus, Square } from "lucide-react";
+import { BorderBeam } from "border-beam";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useTheme } from "next-themes";
 import {
   type FormEvent,
   type KeyboardEvent,
@@ -90,6 +92,7 @@ export function PromptInput({
   ...textareaProps
 }: PromptInputProps) {
   const reduce = useReducedMotion() ?? false;
+  const { resolvedTheme } = useTheme();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const measurementRef = useRef<HTMLDivElement>(null);
   const [internalValue, setInternalValue] = useState(defaultValue);
@@ -97,6 +100,7 @@ export function PromptInput({
     defaultModel ?? models[0]?.value,
   );
   const [actionsOpen, setActionsOpen] = useState(false);
+  const [themeReady, setThemeReady] = useState(false);
   const currentValue = value ?? internalValue;
   const currentModelValue = model ?? internalModel;
   const currentModel = models.find(
@@ -121,6 +125,8 @@ export function PromptInput({
   useLayoutEffect(() => {
     resizeTextarea();
   }, [resizeTextarea]);
+
+  useEffect(() => setThemeReady(true), []);
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -165,164 +171,172 @@ export function PromptInput({
   };
 
   return (
-    <form
-      onSubmit={submit}
-      className={cn(
-        "relative w-full rounded-2xl border border-border/80 bg-background p-2 transition-colors focus-within:border-foreground/25",
-        disabled && "opacity-60",
-        className,
-      )}
+    <BorderBeam
+      size="md"
+      colorVariant="colorful"
+      strength={0.7}
+      theme={themeReady && resolvedTheme === "dark" ? "dark" : "light"}
+      className="prompt-border-beam w-full"
     >
-      <div
-        ref={measurementRef}
-        aria-hidden="true"
-        className="pointer-events-none invisible absolute inset-x-2 top-0 whitespace-pre-wrap px-2 text-sm leading-6 [overflow-wrap:break-word]"
+      <form
+        onSubmit={submit}
+        className={cn(
+          "relative w-full rounded-2xl border border-border/80 bg-background p-2 transition-colors focus-within:border-foreground/25",
+          disabled && "opacity-60",
+          className,
+        )}
       >
-        {`${currentValue}\u200b`}
-      </div>
-      <textarea
-        ref={textareaRef}
-        value={currentValue}
-        disabled={disabled}
-        placeholder={placeholder}
-        aria-label={ariaLabel}
-        rows={minRows}
-        {...textareaProps}
-        onChange={(event) => setValue(event.target.value)}
-        onKeyDown={handleKeyDown}
-        className="scrollbar-hide block w-full resize-none overflow-y-auto bg-transparent px-2 pt-1.5 text-sm leading-6 text-foreground outline-none placeholder:text-muted-foreground/55"
-      />
+        <div
+          ref={measurementRef}
+          aria-hidden="true"
+          className="pointer-events-none invisible absolute inset-x-2 top-0 whitespace-pre-wrap px-2 text-sm leading-6 [overflow-wrap:break-word]"
+        >
+          {`${currentValue}\u200b`}
+        </div>
+        <textarea
+          ref={textareaRef}
+          value={currentValue}
+          disabled={disabled}
+          placeholder={placeholder}
+          aria-label={ariaLabel}
+          rows={minRows}
+          {...textareaProps}
+          onChange={(event) => setValue(event.target.value)}
+          onKeyDown={handleKeyDown}
+          className="scrollbar-hide block w-full resize-none overflow-y-auto bg-transparent px-2 pt-1.5 text-sm leading-6 text-foreground outline-none placeholder:text-muted-foreground/55"
+        />
 
-      <div className="mt-1 flex min-h-8 items-center gap-1">
-        {actions.length ? (
-          <MorphPopover open={actionsOpen} onOpenChange={setActionsOpen}>
-            <MorphPopoverTrigger>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                disabled={disabled || loading}
-                aria-label="Add to prompt"
-                className="size-8 rounded-full"
-              >
-                <motion.span
-                  aria-hidden="true"
-                  animate={{ rotate: actionsOpen ? 45 : 0 }}
-                  transition={reduce ? { duration: 0 } : SPRING_SWAP}
-                >
-                  <Plus className="size-4" />
-                </motion.span>
-              </Button>
-            </MorphPopoverTrigger>
-
-            <MorphPopoverContent
-              side="top"
-              align="start"
-              sideOffset={8}
-              radius={12}
-              className="w-56 p-1.5"
-            >
-              {actions.map((action) => (
-                <button
-                  key={action.value}
+        <div className="mt-1 flex min-h-8 items-center gap-1">
+          {actions.length ? (
+            <MorphPopover open={actionsOpen} onOpenChange={setActionsOpen}>
+              <MorphPopoverTrigger>
+                <Button
                   type="button"
-                  disabled={action.disabled}
-                  onClick={() => {
-                    onAction?.(action.value);
-                    setActionsOpen(false);
-                  }}
-                  className="flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left outline-none transition-colors hover:bg-muted focus-visible:bg-muted disabled:pointer-events-none disabled:opacity-50"
+                  variant="ghost"
+                  size="icon"
+                  disabled={disabled || loading}
+                  aria-label="Add to prompt"
+                  className="size-8 rounded-full"
                 >
-                  {action.icon ? (
-                    <span className="mt-0.5 grid size-5 shrink-0 place-items-center text-muted-foreground [&_svg]:size-4">
-                      {action.icon}
+                  <motion.span
+                    aria-hidden="true"
+                    animate={{ rotate: actionsOpen ? 45 : 0 }}
+                    transition={reduce ? { duration: 0 } : SPRING_SWAP}
+                  >
+                    <Plus className="size-4" />
+                  </motion.span>
+                </Button>
+              </MorphPopoverTrigger>
+
+              <MorphPopoverContent
+                side="top"
+                align="start"
+                sideOffset={8}
+                radius={12}
+                className="w-56 p-1.5"
+              >
+                {actions.map((action) => (
+                  <button
+                    key={action.value}
+                    type="button"
+                    disabled={action.disabled}
+                    onClick={() => {
+                      onAction?.(action.value);
+                      setActionsOpen(false);
+                    }}
+                    className="flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left outline-none transition-colors hover:bg-muted focus-visible:bg-muted disabled:pointer-events-none disabled:opacity-50"
+                  >
+                    {action.icon ? (
+                      <span className="mt-0.5 grid size-5 shrink-0 place-items-center text-muted-foreground [&_svg]:size-4">
+                        {action.icon}
+                      </span>
+                    ) : null}
+                    <span className="min-w-0">
+                      <span className="block text-sm text-foreground">
+                        {action.label}
+                      </span>
+                      {action.description ? (
+                        <span className="mt-0.5 block text-xs leading-4 text-muted-foreground">
+                          {action.description}
+                        </span>
+                      ) : null}
+                    </span>
+                  </button>
+                ))}
+              </MorphPopoverContent>
+            </MorphPopover>
+          ) : null}
+          {leadingAction}
+          {models.length ? (
+            <Select
+              value={currentModelValue}
+              onValueChange={setModel}
+              disabled={disabled || loading}
+              className="min-w-0"
+            >
+              <SelectTrigger className="h-8 w-auto max-w-52 rounded-xl border-0 bg-transparent px-2 py-0 text-xs hover:bg-muted focus-visible:ring-2">
+                <span className="flex min-w-0 items-center gap-1.5">
+                  {currentModel?.icon ? (
+                    <span className="grid size-4 shrink-0 place-items-center text-muted-foreground [&_svg]:size-3.5">
+                      {currentModel.icon}
                     </span>
                   ) : null}
-                  <span className="min-w-0">
-                    <span className="block text-sm text-foreground">
-                      {action.label}
-                    </span>
-                    {action.description ? (
-                      <span className="mt-0.5 block text-xs leading-4 text-muted-foreground">
-                        {action.description}
-                      </span>
-                    ) : null}
+                  <span className="truncate text-muted-foreground">
+                    {currentModel?.label ?? "Choose model"}
                   </span>
-                </button>
-              ))}
-            </MorphPopoverContent>
-          </MorphPopover>
-        ) : null}
-        {leadingAction}
-        {models.length ? (
-          <Select
-            value={currentModelValue}
-            onValueChange={setModel}
-            disabled={disabled || loading}
-            className="min-w-0"
-          >
-            <SelectTrigger className="h-8 w-auto max-w-52 rounded-xl border-0 bg-transparent px-2 py-0 text-xs hover:bg-muted focus-visible:ring-2">
-              <span className="flex min-w-0 items-center gap-1.5">
-                {currentModel?.icon ? (
-                  <span className="grid size-4 shrink-0 place-items-center text-muted-foreground [&_svg]:size-3.5">
-                    {currentModel.icon}
-                  </span>
-                ) : null}
-                <span className="truncate text-muted-foreground">
-                  {currentModel?.label ?? "Choose model"}
                 </span>
-              </span>
-            </SelectTrigger>
-            <SelectContent className="right-auto w-52 shadow-none">
-              {models.map((option) => (
-                <SelectItem
-                  key={option.value}
-                  value={option.value}
-                  disabled={option.disabled}
-                  className="py-2"
-                >
-                  <span className="flex min-w-0 items-center gap-2">
-                    {option.icon ? (
-                      <span className="grid size-5 shrink-0 place-items-center text-muted-foreground [&_svg]:size-4">
-                        {option.icon}
+              </SelectTrigger>
+              <SelectContent className="right-auto w-52 shadow-none">
+                {models.map((option) => (
+                  <SelectItem
+                    key={option.value}
+                    value={option.value}
+                    disabled={option.disabled}
+                    className="py-2"
+                  >
+                    <span className="flex min-w-0 items-center gap-2">
+                      {option.icon ? (
+                        <span className="grid size-5 shrink-0 place-items-center text-muted-foreground [&_svg]:size-4">
+                          {option.icon}
+                        </span>
+                      ) : null}
+                      <span className="min-w-0 truncate text-sm text-foreground">
+                        {option.label}
                       </span>
-                    ) : null}
-                    <span className="min-w-0 truncate text-sm text-foreground">
-                      {option.label}
                     </span>
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        ) : null}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : null}
 
-        <Button
-          type={loading ? "button" : "submit"}
-          size="icon"
-          disabled={loading ? !onStop : !canSubmit}
-          aria-label={loading ? "Stop generating" : "Send prompt"}
-          onClick={loading ? onStop : undefined}
-          className="ml-auto size-8 rounded-full"
-        >
-          <AnimatePresence initial={false} mode="popLayout">
-            <motion.span
-              key={loading ? "stop" : "send"}
-              initial={reduce ? { opacity: 1 } : { opacity: 0, y: 3, scale: 0.8 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={reduce ? { opacity: 0 } : { opacity: 0, y: -3, scale: 0.8 }}
-              transition={reduce ? { duration: 0 } : SPRING_SWAP}
-              className="grid place-items-center"
-            >
-              {loading ? (
-                <Square className="size-3 fill-current" />
-              ) : (
-                <ArrowUp className="size-4" />
-              )}
-            </motion.span>
-          </AnimatePresence>
-        </Button>
-      </div>
-    </form>
+          <Button
+            type={loading ? "button" : "submit"}
+            size="icon"
+            disabled={loading ? !onStop : !canSubmit}
+            aria-label={loading ? "Stop generating" : "Send prompt"}
+            onClick={loading ? onStop : undefined}
+            className="ml-auto size-8 rounded-full"
+          >
+            <AnimatePresence initial={false} mode="popLayout">
+              <motion.span
+                key={loading ? "stop" : "send"}
+                initial={reduce ? { opacity: 1 } : { opacity: 0, y: 3, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={reduce ? { opacity: 0 } : { opacity: 0, y: -3, scale: 0.8 }}
+                transition={reduce ? { duration: 0 } : SPRING_SWAP}
+                className="grid place-items-center"
+              >
+                {loading ? (
+                  <Square className="size-3 fill-current" />
+                ) : (
+                  <ArrowUp className="size-4" />
+                )}
+              </motion.span>
+            </AnimatePresence>
+          </Button>
+        </div>
+      </form>
+    </BorderBeam>
   );
 }

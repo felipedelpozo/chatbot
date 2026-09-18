@@ -21,6 +21,7 @@ import {
   AnimatedSidebarTrigger,
 } from "@/components/motion/animated-sidebar";
 import { Button } from "@/components/motion/button";
+import { ThemeToggle } from "@/components/motion/theme-toggle";
 import { getMessageText } from "@/lib/chat-messages";
 import { ModelSelector } from "./model-selector";
 import { ProjectSidebar } from "./project-sidebar";
@@ -127,27 +128,35 @@ export function ChatWorkspace({
               </p>
             </div>
           </div>
-          {hasConfiguredProvider ? (
-            <span className="shrink-0 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-400">
-              Provider ready
-            </span>
-          ) : (
-            <div className="flex min-w-0 items-center justify-end gap-2.5">
-              <p className="hidden max-w-56 text-right text-[11px] leading-4 text-muted-foreground lg:block">
-                Configure a provider account to use external AI models.
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                aria-label="Configure a provider account"
-                onClick={() => setIsProviderSettingsOpen(true)}
-                className="shrink-0 border-amber-500/20 bg-amber-500/10 text-[11px] text-amber-800 outline-none hover:bg-amber-500/15 focus-visible:ring-2 focus-visible:ring-amber-500/35 dark:text-amber-300"
-              >
-                <KeyRound className="size-3.5" />
-                Set up provider
-              </Button>
-            </div>
-          )}
+          <div className="flex min-w-0 items-center justify-end gap-2">
+            {hasConfiguredProvider ? (
+              <span className="shrink-0 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-400">
+                Provider ready
+              </span>
+            ) : (
+              <div className="flex min-w-0 items-center justify-end gap-2.5">
+                <p className="hidden max-w-56 text-right text-[11px] leading-4 text-muted-foreground lg:block">
+                  Configure a provider account to use external AI models.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  aria-label="Configure a provider account"
+                  onClick={() => setIsProviderSettingsOpen(true)}
+                  className="shrink-0 border-amber-500/20 bg-amber-500/10 text-[11px] text-amber-800 outline-none hover:bg-amber-500/15 focus-visible:ring-2 focus-visible:ring-amber-500/35 dark:text-amber-300"
+                >
+                  <KeyRound className="size-3.5" />
+                  Set up provider
+                </Button>
+              </div>
+            )}
+            <ThemeToggle
+              variant="circle"
+              start="top-right"
+              className="size-8 shrink-0 rounded-full text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+              iconClassName="size-4"
+            />
+          </div>
         </header>
 
         <MessageScroller

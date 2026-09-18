@@ -125,5 +125,23 @@
     }
   html {
     @apply font-sans;
-    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prompt-border-beam[data-beam],
+  .prompt-border-beam[data-beam]::before,
+  .prompt-border-beam[data-beam]::after,
+  .prompt-border-beam[data-beam] [data-beam-bloom] {
+    animation: none !important;
+  }
+
+  .prompt-border-beam[data-beam]::before,
+  .prompt-border-beam[data-beam]::after {
+    opacity: 0 !important;
+  }
+
+  .prompt-border-beam[data-beam] [data-beam-bloom] {
+    display: none !important;
+  }
 }
